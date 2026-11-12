@@ -1,8 +1,27 @@
-\usepackage{esint}
+% Unicode characters typed directly into a pdfLaTeX document, in text or in
+% maths, are set as the corresponding LaTeX symbols. Characters set as AMS
+% symbols need amssymb, or a font package that provides them such as
+% newtxmath; ⟦ and ⟧ need stmaryrd, and ∎ needs amsthm.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{utf8}[2026/11/12 Unicode characters in text and maths]
+\RequirePackage{esint}
+\RequirePackage{graphicx}
+
+% A binary operator made from a math glyph scaled by a factor; it stays on
+% the math axis and follows the current math style.
+\newcommand{\scaledbin}[2]{\mathbin{\mathpalette{\scaledbin@{#1}}{#2}}}
+\newcommand{\scaledbin@}[3]{\vcenter{\hbox{\scalebox{#1}{$\m@th#2#3$}}}}
+
+% A relation symbol stretched horizontally by a factor; it follows the
+% current math style.
+\newcommand{\widerel}[2]{\mathrel{\mathpalette{\widerel@{#1}}{#2}}}
+\newcommand{\widerel@}[3]{\hbox{\scalebox{#1}[1]{$\m@th#2#3$}}}
+
 \DeclareUnicodeCharacter{2192}{\ensuremath{\rightarrow}} % "→"
 \DeclareUnicodeCharacter{2190}{\ensuremath{\leftarrow}} % "←"
 \DeclareUnicodeCharacter{22EF}{\ensuremath{\cdots}} % "⋯"
 \DeclareUnicodeCharacter{2208}{\ensuremath{\in}} % "∈"
+\DeclareUnicodeCharacter{220B}{\ensuremath{\ni}} % "∋"
 \DeclareUnicodeCharacter{2200}{\ensuremath{\forall}} % "∀"
 \DeclareUnicodeCharacter{2203}{\ensuremath{\exists}} % "∃"
 \DeclareUnicodeCharacter{03B1}{\ensuremath{\alpha}} % "α"
@@ -57,6 +76,7 @@
 \DeclareUnicodeCharacter{263A}{:-)} % "☺"
 \DeclareUnicodeCharacter{2193}{\ensuremath{\downarrow}} % "↓"
 \DeclareUnicodeCharacter{1D48}{\ensuremath{^d}} % "ᵈ"
+\DeclareUnicodeCharacter{2153}{\ensuremath{\frac{1}{3}}} % "⅓"
 \DeclareUnicodeCharacter{2211}{\ensuremath{\sum}} % "∑"
 \DeclareUnicodeCharacter{220F}{\ensuremath{\prod}} % "∏"
 \DeclareUnicodeCharacter{2243}{\ensuremath{\simeq}} % "≃"
@@ -98,6 +118,7 @@
 \DeclareUnicodeCharacter{2010}{-} % "‐"
 \DeclareUnicodeCharacter{2124}{\ensuremath{\mathbb{Z}}} % "ℤ"
 \DeclareUnicodeCharacter{207F}{\ensuremath{^n}} % "ⁿ"
+\DeclareUnicodeCharacter{2099}{\ensuremath{_n}} % "ₙ"
 \DeclareUnicodeCharacter{2032}{\ensuremath{'}} % "′"
 \DeclareUnicodeCharacter{221A}{\ensuremath{\sqrt}} % "√"
 \DeclareUnicodeCharacter{2071}{\ensuremath{^i}} % "ⁱ"
@@ -171,6 +192,7 @@
 \DeclareUnicodeCharacter{0192}{\ensuremath{\fint}} % "ƒ"
 \DeclareUnicodeCharacter{043B}{\ensuremath{\el}} % "л"
 \DeclareUnicodeCharacter{2294}{\ensuremath{\sqcup}} % "⊔"
+\DeclareUnicodeCharacter{2A06}{\ensuremath{\bigsqcup}} % "⨆"
 \DeclareUnicodeCharacter{219D}{\ensuremath{\leadsto}} % "↝"
 \DeclareUnicodeCharacter{2237}{\ensuremath{{::}}} % "∷"
 \DeclareUnicodeCharacter{231D}{\ensuremath{\urcorner}} % "⌝"
@@ -178,3 +200,12 @@
 \DeclareUnicodeCharacter{2022}{\ensuremath{\bullet}} % "⌜"
 \DeclareUnicodeCharacter{21A6}{\ensuremath{\mapsto}} % "↦"
 \DeclareUnicodeCharacter{21A0}{\ensuremath{\twoheadrightarrow}} % "↠"
+\DeclareUnicodeCharacter{25C1}{\ensuremath{\triangleleft}} % "◁"
+\DeclareUnicodeCharacter{27E6}{\ensuremath{\llbracket}} % "⟦"
+\DeclareUnicodeCharacter{27E7}{\ensuremath{\rrbracket}} % "⟧"
+\DeclareUnicodeCharacter{22C6}{\ensuremath{\scaledbin{0.6}{\star}}} % "⋆"
+\DeclareUnicodeCharacter{FF1D}{\ensuremath{\widerel{1.3}{=}}} % "＝"
+\DeclareUnicodeCharacter{1D63}{\ensuremath{_r}} % "ᵣ"
+\DeclareUnicodeCharacter{2097}{\ensuremath{_l}} % "ₗ"
+\DeclareUnicodeCharacter{27EA}{\ensuremath{\langle\!\langle}} % "⟪"
+\DeclareUnicodeCharacter{27EB}{\ensuremath{\rangle\!\rangle}} % "⟫"
