@@ -13,7 +13,7 @@
         version = builtins.substring 0 8 self.lastModifiedDate;
         src = self;
         outputs = [ "tex" ];
-        passthru.tlDeps = ps: with ps; [ esint esint-type1 graphics pgf ];
+        passthru.tlDeps = ps: with ps; [ esint esint-type1 dsserif cm-super graphics pgf ];
         preHook = ''
           out="''${tex-}"
         '';
@@ -32,7 +32,7 @@
         characters = pkgs.runCommand "unicode-latex-characters" {
           nativeBuildInputs = [
             (pkgs.texlive.withPackages (ps: with ps; [
-              scheme-basic amsfonts amsmath amscls stmaryrd
+              scheme-basic amsfonts amsmath amscls stmaryrd was
             ] ++ [ (unicode-latex pkgs) ]))
           ];
         } ''
@@ -50,8 +50,8 @@
               exit 1
             fi
             case $hex in
-              221A) printf 'U+%s $%sx$\\par\n' "$hex" "$char" ;;
-              *) printf 'U+%s %s\\par\n' "$hex" "$char" ;;
+              221A) printf 'U+%s $%sx$ \\texttt{$%sx$}\\par\n' "$hex" "$char" "$char" ;;
+              *) printf 'U+%s %s \\texttt{%s}\\par\n' "$hex" "$char" "$char" ;;
             esac
           done < declared > declared-characters.tex
           cp ${./test/characters.tex} characters.tex

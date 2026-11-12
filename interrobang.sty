@@ -2,19 +2,85 @@
 % share their dot and lean away from each other, each by \interrobangangle
 % degrees; the ? leans right for a positive angle and left for a negative one.
 % Typing ‽ (U+203D) produces \interrobang.
+%
+% Each glyph turns about the centre of its dot, and the two centres coincide.
+% \interrobangdots{family/series/shape}{?x}{?y}{!x}{!y}{cut} gives, in em, the
+% dot centres of a font, measured from each glyph's origin on the baseline,
+% and a height between the dots and the strokes above them. Below that height
+% the turned glyphs are cut away and the dot of the ! is drawn upright once,
+% so a dot that is not round keeps its shape. Kepler (kpfonts) is known; a
+% shape without its own entry uses the upright one, and other fonts are taken
+% to centre the dots in the glyphs, 0.05em up, and are not cut.
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{interrobang}[2026/09/17 interrobang from ? and !]
+\ProvidesPackage{interrobang}[2026/10/29 interrobang from ? and !]
 \RequirePackage{tikz}
 
 \newcommand{\interrobangangle}{15}
 
+\newcommand{\interrobangdots}[6]{%
+  \@namedef{interrobang@dots@#1}{{#2}{#3}{#4}{#5}{#6}}}
+
+\interrobangdots{jkpl/m/n}{0.1783}{0.0465}{0.1363}{0.0465}{0.1455}
+\interrobangdots{jkpl/m/it}{0.1513}{0.0495}{0.1223}{0.0475}{0.1485}
+\interrobangdots{jkpl/b/n}{0.1787}{0.0590}{0.1387}{0.0590}{0.1600}
+\interrobangdots{jkpl/b/it}{0.1428}{0.0590}{0.1158}{0.0571}{0.1606}
+\interrobangdots{jkp/m/n}{0.1782}{0.0509}{0.1363}{0.0509}{0.1473}
+\interrobangdots{jkp/m/it}{0.1442}{0.0495}{0.1172}{0.0495}{0.1497}
+\interrobangdots{jkp/b/n}{0.1783}{0.0669}{0.1391}{0.0669}{0.1675}
+\interrobangdots{jkp/b/it}{0.1499}{0.0637}{0.1199}{0.0637}{0.1647}
+
+\newdimen\interrobang@qx \newdimen\interrobang@qy
+\newdimen\interrobang@ex \newdimen\interrobang@ey
+\newdimen\interrobang@cut \newdimen\interrobang@far
+
+\def\interrobang@set#1#2#3#4#5{%
+  \interrobang@qx=#1em \interrobang@qy=#2em
+  \interrobang@ex=#3em \interrobang@ey=#4em
+  \interrobang@cut=#5em}
+
+\def\interrobang@dots{%
+  \interrobang@far=2em
+  \@ifundefined{interrobang@dots@\f@family/\f@series/\f@shape}{%
+    \@ifundefined{interrobang@dots@\f@family/\f@series/n}{%
+      \interrobang@qx=.5\fontcharwd\font`\? \interrobang@qy=.05em
+      \interrobang@ex=.5\fontcharwd\font`\! \interrobang@ey=.05em
+      \interrobang@cut=\z@}{%
+      \expandafter\expandafter\expandafter\interrobang@set
+        \csname interrobang@dots@\f@family/\f@series/n\endcsname}}{%
+    \expandafter\expandafter\expandafter\interrobang@set
+      \csname interrobang@dots@\f@family/\f@series/\f@shape\endcsname}}
+
+% \interrobang@glyph{angle}{dot x}{baseline}{glyph}: the glyph turned about
+% the shared dot, without its dot when the font gives a cut. A clip keeps
+% what follows it from sizing the picture, so the whole glyph sizes it first.
+\def\interrobang@glyph#1#2#3#4{%
+  \begin{scope}[transform shape, rotate around={#1:(0pt,\the\interrobang@qy)}]
+    \ifdim\interrobang@cut>\z@
+      \node[inner sep=0pt, outer sep=0pt, anchor=base west] at (-\the#2,\the#3)
+        {\phantom{#4}};
+      \clip[overlay] (-\the\interrobang@far,\the\dimexpr#3+\interrobang@cut\relax)
+        rectangle (\the\interrobang@far,\the\interrobang@far);
+    \fi
+    \node[inner sep=0pt, outer sep=0pt, anchor=base west] at (-\the#2,\the#3) {#4};
+  \end{scope}}
+
 \DeclareRobustCommand{\interrobang}{%
+  \begingroup
+  \interrobang@dots
   \tikz[baseline=0pt]{%
-    \node[inner sep=0pt, outer sep=0pt, anchor=base, rotate=-\interrobangangle]
-      at (0,0) {?};%
-    \node[inner sep=0pt, outer sep=0pt, anchor=base, rotate=\interrobangangle]
-      at (0,0) {!};%
+    \interrobang@glyph{-\interrobangangle}{\interrobang@qx}{\z@}{?}%
+    \interrobang@glyph{\interrobangangle}{\interrobang@ex}
+      {\dimexpr\interrobang@qy-\interrobang@ey\relax}{!}%
+    \ifdim\interrobang@cut>\z@
+      \begin{scope}
+        \clip[overlay] (-\the\interrobang@far,-\the\interrobang@far) rectangle
+          (\the\interrobang@far,\the\dimexpr\interrobang@qy-\interrobang@ey+\interrobang@cut\relax);
+        \node[overlay, inner sep=0pt, outer sep=0pt, anchor=base west]
+          at (-\the\interrobang@ex,\the\dimexpr\interrobang@qy-\interrobang@ey\relax) {!};
+      \end{scope}%
+    \fi
   }%
+  \endgroup
 }
 
 \DeclareUnicodeCharacter{203D}{\interrobang}

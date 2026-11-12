@@ -1,7 +1,9 @@
 % Unicode characters typed directly into a pdfLaTeX document, in text or in
 % maths, are set as the corresponding LaTeX symbols. Characters set as AMS
 % symbols need amssymb, or a font package that provides them such as
-% newtxmath; ⟦ and ⟧ need stmaryrd, and ∎ needs amsthm.
+% newtxmath; ⟦ and ⟧ need stmaryrd, and ∎ needs amsthm. Greek letters in
+% typewriter text need upright Greek, \upalpha and so on, as newtxmath and
+% upgreek provide.
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{utf8}[2026/11/12 Unicode characters in text and maths]
 \RequirePackage{esint}
@@ -17,6 +19,42 @@
 \newcommand{\widerel}[2]{\mathrel{\mathpalette{\widerel@{#1}}{#2}}}
 \newcommand{\widerel@}[3]{\hbox{\scalebox{#1}[1]{$\m@th#2#3$}}}
 
+% Greek and double-struck letters and × are maths, but in the typewriter face
+% each takes the width of one character, so that code keeps its columns:
+% Greek letters stand upright, double-struck letters are DSSerif's, and × is
+% the typewriter face's own. A letter wider than that is centred on its
+% column, or squeezed to it with the package option `condensed`.
+\newcommand\utf@tt[2]{\ifmmode#2\else\utf@iftt{#1}{$\m@th#2$}\fi}
+\newcommand\utf@iftt{%
+  \edef\utf@family{\f@family}\edef\utf@ttfamily{\ttdefault}%
+  \ifx\utf@family\utf@ttfamily
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo
+  \fi}
+\newcommand\utf@column[2]{\utf@tt{\utf@code{#2}}{#1}}
+\newcommand\utf@centred[1]{\makebox[\fontcharwd\font`x]{$\m@th#1$}}
+\newcommand\utf@condensed[1]{%
+  \sbox\z@{$\m@th#1$}%
+  \ifdim\wd\z@>\fontcharwd\font`x
+    \makebox[\fontcharwd\font`x]{\resizebox{\fontcharwd\font`x}{\height}{\usebox\z@}}%
+  \else
+    \makebox[\fontcharwd\font`x]{\usebox\z@}%
+  \fi}
+\DeclareOption{centred}{\let\utf@code\utf@centred}
+\DeclareOption{condensed}{\let\utf@code\utf@condensed}
+\ExecuteOptions{centred}
+\ProcessOptions\relax
+\DeclareFontFamily{U}{utfdsserif}{\skewchar\font=45}
+\DeclareFontShape{U}{utfdsserif}{m}{n}{<-> DSSerif}{}
+\newcommand\utf@ds[1]{\hbox{\usefont{U}{utfdsserif}{m}{n}#1}}
+
+% Italic double-struck letters, which none of the fonts draw, are the
+% upright ones slanted, with room for the slant before and after.
+\newcommand\utf@slanted[1]{\mathord{\mathpalette\utf@slanted@{#1}}}
+\newcommand\utf@slanted@[2]{\sbox\z@{$\m@th#1#2$}\kern.2\dp\z@\hskip\wd\z@
+  \pdfsave\pdfsetmatrix{1 0 .2 1}\llap{\usebox\z@}\pdfrestore\kern.2\ht\z@}
+
 \DeclareUnicodeCharacter{2192}{\ensuremath{\rightarrow}} % "→"
 \DeclareUnicodeCharacter{2190}{\ensuremath{\leftarrow}} % "←"
 \DeclareUnicodeCharacter{22EF}{\ensuremath{\cdots}} % "⋯"
@@ -24,51 +62,51 @@
 \DeclareUnicodeCharacter{220B}{\ensuremath{\ni}} % "∋"
 \DeclareUnicodeCharacter{2200}{\ensuremath{\forall}} % "∀"
 \DeclareUnicodeCharacter{2203}{\ensuremath{\exists}} % "∃"
-\DeclareUnicodeCharacter{03B1}{\ensuremath{\alpha}} % "α"
-\DeclareUnicodeCharacter{03B2}{\ensuremath{\beta}} % "β"
-\DeclareUnicodeCharacter{03BE}{\ensuremath{\xi}} % "ξ"
-\DeclareUnicodeCharacter{03B4}{\ensuremath{\delta}} % "δ"
-\DeclareUnicodeCharacter{03B5}{\ensuremath{\epsilon}} % "ε"
-\DeclareUnicodeCharacter{03C6}{\ensuremath{\phi}} % "φ"
-\DeclareUnicodeCharacter{03B3}{\ensuremath{\gamma}} % "γ"
-\DeclareUnicodeCharacter{03B8}{\ensuremath{\theta}} % "θ"
-\DeclareUnicodeCharacter{03B9}{\ensuremath{\iota}} % "ι"
-\DeclareUnicodeCharacter{03BA}{\ensuremath{\kappa}} % "κ"
-\DeclareUnicodeCharacter{03BB}{\ensuremath{\lambda}} % "λ"
-\DeclareUnicodeCharacter{03BC}{\ensuremath{\mu}} % "μ"
-\DeclareUnicodeCharacter{03BD}{\ensuremath{\nu}} % "ν"
+\DeclareUnicodeCharacter{03B1}{\utf@column\alpha\upalpha} % "α"
+\DeclareUnicodeCharacter{03B2}{\utf@column\beta\upbeta} % "β"
+\DeclareUnicodeCharacter{03BE}{\utf@column\xi\upxi} % "ξ"
+\DeclareUnicodeCharacter{03B4}{\utf@column\delta\updelta} % "δ"
+\DeclareUnicodeCharacter{03B5}{\utf@column\epsilon\upepsilon} % "ε"
+\DeclareUnicodeCharacter{03C6}{\utf@column\phi\upphi} % "φ"
+\DeclareUnicodeCharacter{03B3}{\utf@column\gamma\upgamma} % "γ"
+\DeclareUnicodeCharacter{03B8}{\utf@column\theta\uptheta} % "θ"
+\DeclareUnicodeCharacter{03B9}{\utf@column\iota\upiota} % "ι"
+\DeclareUnicodeCharacter{03BA}{\utf@column\kappa\upkappa} % "κ"
+\DeclareUnicodeCharacter{03BB}{\utf@column\lambda\uplambda} % "λ"
+\DeclareUnicodeCharacter{03BC}{\utf@column\mu\upmu} % "μ"
+\DeclareUnicodeCharacter{03BD}{\utf@column\nu\upnu} % "ν"
 \DeclareUnicodeCharacter{03BF}{\ensuremath{o}} % "ο"
-\DeclareUnicodeCharacter{03C0}{\ensuremath{\pi}} % "π"
-\DeclareUnicodeCharacter{03C8}{\ensuremath{\psi}} % "ψ"
-\DeclareUnicodeCharacter{03C1}{\ensuremath{\rho}} % "ρ"
-\DeclareUnicodeCharacter{03C3}{\ensuremath{\sigma}} % "σ"
-\DeclareUnicodeCharacter{03C4}{\ensuremath{\tau}} % "τ"
-\DeclareUnicodeCharacter{03C5}{\ensuremath{\upsilon}} % "υ"
-\DeclareUnicodeCharacter{03C9}{\ensuremath{\omega}} % "ω"
-\DeclareUnicodeCharacter{03C7}{\ensuremath{\chi}} % "χ"
-\DeclareUnicodeCharacter{03B7}{\ensuremath{\eta}} % "η"
-\DeclareUnicodeCharacter{03B6}{\ensuremath{\zeta}} % "ζ"
+\DeclareUnicodeCharacter{03C0}{\utf@column\pi\uppi} % "π"
+\DeclareUnicodeCharacter{03C8}{\utf@column\psi\uppsi} % "ψ"
+\DeclareUnicodeCharacter{03C1}{\utf@column\rho\uprho} % "ρ"
+\DeclareUnicodeCharacter{03C3}{\utf@column\sigma\upsigma} % "σ"
+\DeclareUnicodeCharacter{03C4}{\utf@column\tau\uptau} % "τ"
+\DeclareUnicodeCharacter{03C5}{\utf@column\upsilon\upupsilon} % "υ"
+\DeclareUnicodeCharacter{03C9}{\utf@column\omega\upomega} % "ω"
+\DeclareUnicodeCharacter{03C7}{\utf@column\chi\upchi} % "χ"
+\DeclareUnicodeCharacter{03B7}{\utf@column\eta\upeta} % "η"
+\DeclareUnicodeCharacter{03B6}{\utf@column\zeta\upzeta} % "ζ"
 \DeclareUnicodeCharacter{0391}{\ensuremath{\mathrm{A}}} % "Α"
 \DeclareUnicodeCharacter{0392}{\ensuremath{\mathrm{B}}} % "Β"
-\DeclareUnicodeCharacter{039E}{\ensuremath{\Xi}} % "Ξ"
-\DeclareUnicodeCharacter{0394}{\ensuremath{\Delta}} % "Δ"
+\DeclareUnicodeCharacter{039E}{\utf@column\Xi\Xi} % "Ξ"
+\DeclareUnicodeCharacter{0394}{\utf@column\Delta\Delta} % "Δ"
 \DeclareUnicodeCharacter{0395}{\ensuremath{\mathrm{E}}} % "Ε"
-\DeclareUnicodeCharacter{03A6}{\ensuremath{\Phi}} % "Φ"
-\DeclareUnicodeCharacter{0393}{\ensuremath{\Gamma}} % "Γ"
-\DeclareUnicodeCharacter{0398}{\ensuremath{\Theta}} % "Θ"
+\DeclareUnicodeCharacter{03A6}{\utf@column\Phi\Phi} % "Φ"
+\DeclareUnicodeCharacter{0393}{\utf@column\Gamma\Gamma} % "Γ"
+\DeclareUnicodeCharacter{0398}{\utf@column\Theta\Theta} % "Θ"
 \DeclareUnicodeCharacter{0399}{\ensuremath{\mathrm{I}}} % "Ι"
 \DeclareUnicodeCharacter{039A}{\ensuremath{\mathrm{K}}} % "Κ"
-\DeclareUnicodeCharacter{039B}{\ensuremath{\Lambda}} % "Λ"
+\DeclareUnicodeCharacter{039B}{\utf@column\Lambda\Lambda} % "Λ"
 \DeclareUnicodeCharacter{039C}{\ensuremath{\mathrm{M}}} % "Μ"
 \DeclareUnicodeCharacter{039D}{\ensuremath{\mathrm{N}}} % "Ν"
 \DeclareUnicodeCharacter{039F}{\ensuremath{\mathrm{O}}} % "Ο"
-\DeclareUnicodeCharacter{03A0}{\ensuremath{\Pi}} % "Π"
-\DeclareUnicodeCharacter{03A8}{\ensuremath{\Psi}} % "Ψ"
+\DeclareUnicodeCharacter{03A0}{\utf@column\Pi\Pi} % "Π"
+\DeclareUnicodeCharacter{03A8}{\utf@column\Psi\Psi} % "Ψ"
 \DeclareUnicodeCharacter{03A1}{\ensuremath{\mathrm{P}}} % "Ρ"
-\DeclareUnicodeCharacter{03A3}{\ensuremath{\Sigma}} % "Σ"
+\DeclareUnicodeCharacter{03A3}{\utf@column\Sigma\Sigma} % "Σ"
 \DeclareUnicodeCharacter{03A4}{\ensuremath{\mathrm{T}}} % "Τ"
-\DeclareUnicodeCharacter{03A5}{\ensuremath{\Upsilon}} % "Υ"
-\DeclareUnicodeCharacter{03A9}{\ensuremath{\Omega}} % "Ω"
+\DeclareUnicodeCharacter{03A5}{\utf@column\Upsilon\Upsilon} % "Υ"
+\DeclareUnicodeCharacter{03A9}{\utf@column\Omega\Omega} % "Ω"
 \DeclareUnicodeCharacter{03A7}{\ensuremath{\mathrm{X}}} % "Χ"
 \DeclareUnicodeCharacter{0397}{\ensuremath{\mathrm{H}}} % "Η"
 \DeclareUnicodeCharacter{0396}{\ensuremath{\mathrm{Z}}} % "Ζ"
@@ -92,37 +130,37 @@
 \DeclareUnicodeCharacter{2261}{\ensuremath{\equiv}} % "≡"
 \DeclareUnicodeCharacter{2227}{\ensuremath{\wedge}} % "∧"
 \DeclareUnicodeCharacter{2228}{\ensuremath{\vee}} % "∨"
-\DeclareUnicodeCharacter{00D7}{\ensuremath{\times}} % "×"
+\DeclareUnicodeCharacter{00D7}{\utf@tt\texttimes\times} % "×"
 \DeclareUnicodeCharacter{2205}{\ensuremath{\emptyset}} % "∅"
 \DeclareUnicodeCharacter{2194}{\ensuremath{\leftrightarrow}} % "↔"
 \DeclareUnicodeCharacter{2260}{\ensuremath{\neq}} % "≠"
 \DeclareUnicodeCharacter{2264}{\ensuremath{\le}} % "≤"
 \DeclareUnicodeCharacter{2265}{\ensuremath{\ge}} % "≥"
 \DeclareUnicodeCharacter{2423}{\,} % "␣"
-\DeclareUnicodeCharacter{211D}{\ensuremath{\mathbb{R}}} % "ℝ"
+\DeclareUnicodeCharacter{211D}{\utf@column{\mathbb{R}}{\utf@ds{R}}} % "ℝ"
 \DeclareUnicodeCharacter{266F}{\ensuremath{\sharp}} % "♯"
 \DeclareUnicodeCharacter{2212}{\ensuremath{-}} % "−"
 \DeclareUnicodeCharacter{22C0}{\ensuremath{\bigwedge}} % "⋀"
 \DeclareUnicodeCharacter{2295}{\ensuremath{\oplus}} % "⊕"
 \DeclareUnicodeCharacter{2297}{\ensuremath{\otimes}} % "⊗"
 \DeclareUnicodeCharacter{2299}{\ensuremath{\odot}} % "⊙"
-\DeclareUnicodeCharacter{2102}{\ensuremath{\mathbb{C}}} % "ℂ"
+\DeclareUnicodeCharacter{2102}{\utf@column{\mathbb{C}}{\utf@ds{C}}} % "ℂ"
 \DeclareUnicodeCharacter{2112}{\ensuremath{\mathcal{L}}} % "ℒ"
 \DeclareUnicodeCharacter{2130}{\ensuremath{\mathcal{E}}} % "ℰ"
 \DeclareUnicodeCharacter{2217}{\ensuremath{*}} % "∗"
 \DeclareUnicodeCharacter{2131}{\ensuremath{\mathcal{F}}} % "ℱ"
 \DeclareUnicodeCharacter{22A8}{\ensuremath{\models}} % "⊨"
 \DeclareUnicodeCharacter{21D2}{\ensuremath{\Rightarrow}} % "⇒"
-\DeclareUnicodeCharacter{2115}{\ensuremath{\mathbb{N}}} % "ℕ"
+\DeclareUnicodeCharacter{2115}{\utf@column{\mathbb{N}}{\utf@ds{N}}} % "ℕ"
 \DeclareUnicodeCharacter{2013}{--} % "–"
 \DeclareUnicodeCharacter{2010}{-} % "‐"
-\DeclareUnicodeCharacter{2124}{\ensuremath{\mathbb{Z}}} % "ℤ"
+\DeclareUnicodeCharacter{2124}{\utf@column{\mathbb{Z}}{\utf@ds{Z}}} % "ℤ"
 \DeclareUnicodeCharacter{207F}{\ensuremath{^n}} % "ⁿ"
 \DeclareUnicodeCharacter{2099}{\ensuremath{_n}} % "ₙ"
 \DeclareUnicodeCharacter{2032}{\ensuremath{'}} % "′"
 \DeclareUnicodeCharacter{221A}{\ensuremath{\sqrt}} % "√"
 \DeclareUnicodeCharacter{2071}{\ensuremath{^i}} % "ⁱ"
-\DeclareUnicodeCharacter{211A}{\ensuremath{\mathbb{Q}}} % "ℚ"
+\DeclareUnicodeCharacter{211A}{\utf@column{\mathbb{Q}}{\utf@ds{Q}}} % "ℚ"
 \DeclareUnicodeCharacter{21D4}{\ensuremath{\Leftrightarrow}} % "⇔"
 \DeclareUnicodeCharacter{00BE}{\ensuremath{\frac 34}} % "¾"
 \DeclareUnicodeCharacter{2329}{\ensuremath{\langle}} % "〈"
@@ -144,7 +182,7 @@
 \DeclareUnicodeCharacter{2084}{\ensuremath{_4}} % "₄"
 \DeclareUnicodeCharacter{00B2}{\ensuremath{^2}} % "²"
 \DeclareUnicodeCharacter{00B3}{\ensuremath{^3}} % "³"
-\DeclareUnicodeCharacter{2119}{\ensuremath{\mathbb P}} % "ℙ"
+\DeclareUnicodeCharacter{2119}{\utf@column{\mathbb{P}}{\utf@ds{P}}} % "ℙ"
 \DeclareUnicodeCharacter{2207}{\ensuremath{\nabla}} % "∇"
 \DeclareUnicodeCharacter{212F}{\ensuremath{e}} % "ℯ"
 \DeclareUnicodeCharacter{22C1}{\ensuremath{\bigvee}} % "⋁"
@@ -185,7 +223,11 @@
 \DeclareUnicodeCharacter{21CA}{\ensuremath{\downdownarrows}} % "⇊"
 \DeclareUnicodeCharacter{25A1}{\ensuremath{\Box}} % "□"
 \DeclareUnicodeCharacter{01B2}{\ensuremath{\mathcal{V}}} % "Ʋ"
-\DeclareUnicodeCharacter{2148}{\ensuremath{\mathbb{i}}} % "ⅈ"
+\DeclareUnicodeCharacter{2145}{\utf@column{\utf@slanted{\mathbb{D}}}{\utf@slanted{\utf@ds{D}}}} % "ⅅ"
+\DeclareUnicodeCharacter{2146}{\utf@column{\utf@slanted{\mathbb{d}}}{\utf@slanted{\utf@ds{d}}}} % "ⅆ"
+\DeclareUnicodeCharacter{2147}{\utf@column{\utf@slanted{\mathbb{e}}}{\utf@slanted{\utf@ds{e}}}} % "ⅇ"
+\DeclareUnicodeCharacter{2148}{\utf@column{\utf@slanted{\mathbb{i}}}{\utf@slanted{\utf@ds{i}}}} % "ⅈ"
+\DeclareUnicodeCharacter{2149}{\utf@column{\utf@slanted{\mathbb{j}}}{\utf@slanted{\utf@ds{j}}}} % "ⅉ"
 \DeclareUnicodeCharacter{231F}{\ensuremath{\lrcorner}} % "⌟"
 \DeclareUnicodeCharacter{226C}{\ensuremath{\between}} % "≬"
 \DeclareUnicodeCharacter{2118}{\ensuremath{\mathcal P}} % "℘"
@@ -207,3 +249,59 @@
 \DeclareUnicodeCharacter{2097}{\ensuremath{_l}} % "ₗ"
 \DeclareUnicodeCharacter{27EA}{\ensuremath{\langle\!\langle}} % "⟪"
 \DeclareUnicodeCharacter{27EB}{\ensuremath{\rangle\!\rangle}} % "⟫"
+\DeclareUnicodeCharacter{1D538}{\utf@column{\mathbb{A}}{\utf@ds{A}}} % "𝔸"
+\DeclareUnicodeCharacter{1D539}{\utf@column{\mathbb{B}}{\utf@ds{B}}} % "𝔹"
+\DeclareUnicodeCharacter{1D53B}{\utf@column{\mathbb{D}}{\utf@ds{D}}} % "𝔻"
+\DeclareUnicodeCharacter{1D53C}{\utf@column{\mathbb{E}}{\utf@ds{E}}} % "𝔼"
+\DeclareUnicodeCharacter{1D53D}{\utf@column{\mathbb{F}}{\utf@ds{F}}} % "𝔽"
+\DeclareUnicodeCharacter{1D53E}{\utf@column{\mathbb{G}}{\utf@ds{G}}} % "𝔾"
+\DeclareUnicodeCharacter{210D}{\utf@column{\mathbb{H}}{\utf@ds{H}}} % "ℍ"
+\DeclareUnicodeCharacter{1D540}{\utf@column{\mathbb{I}}{\utf@ds{I}}} % "𝕀"
+\DeclareUnicodeCharacter{1D541}{\utf@column{\mathbb{J}}{\utf@ds{J}}} % "𝕁"
+\DeclareUnicodeCharacter{1D542}{\utf@column{\mathbb{K}}{\utf@ds{K}}} % "𝕂"
+\DeclareUnicodeCharacter{1D543}{\utf@column{\mathbb{L}}{\utf@ds{L}}} % "𝕃"
+\DeclareUnicodeCharacter{1D544}{\utf@column{\mathbb{M}}{\utf@ds{M}}} % "𝕄"
+\DeclareUnicodeCharacter{1D546}{\utf@column{\mathbb{O}}{\utf@ds{O}}} % "𝕆"
+\DeclareUnicodeCharacter{1D54A}{\utf@column{\mathbb{S}}{\utf@ds{S}}} % "𝕊"
+\DeclareUnicodeCharacter{1D54B}{\utf@column{\mathbb{T}}{\utf@ds{T}}} % "𝕋"
+\DeclareUnicodeCharacter{1D54C}{\utf@column{\mathbb{U}}{\utf@ds{U}}} % "𝕌"
+\DeclareUnicodeCharacter{1D54D}{\utf@column{\mathbb{V}}{\utf@ds{V}}} % "𝕍"
+\DeclareUnicodeCharacter{1D54E}{\utf@column{\mathbb{W}}{\utf@ds{W}}} % "𝕎"
+\DeclareUnicodeCharacter{1D54F}{\utf@column{\mathbb{X}}{\utf@ds{X}}} % "𝕏"
+\DeclareUnicodeCharacter{1D550}{\utf@column{\mathbb{Y}}{\utf@ds{Y}}} % "𝕐"
+\DeclareUnicodeCharacter{1D552}{\utf@column{\mathbb{a}}{\utf@ds{a}}} % "𝕒"
+\DeclareUnicodeCharacter{1D553}{\utf@column{\mathbb{b}}{\utf@ds{b}}} % "𝕓"
+\DeclareUnicodeCharacter{1D554}{\utf@column{\mathbb{c}}{\utf@ds{c}}} % "𝕔"
+\DeclareUnicodeCharacter{1D555}{\utf@column{\mathbb{d}}{\utf@ds{d}}} % "𝕕"
+\DeclareUnicodeCharacter{1D556}{\utf@column{\mathbb{e}}{\utf@ds{e}}} % "𝕖"
+\DeclareUnicodeCharacter{1D557}{\utf@column{\mathbb{f}}{\utf@ds{f}}} % "𝕗"
+\DeclareUnicodeCharacter{1D558}{\utf@column{\mathbb{g}}{\utf@ds{g}}} % "𝕘"
+\DeclareUnicodeCharacter{1D559}{\utf@column{\mathbb{h}}{\utf@ds{h}}} % "𝕙"
+\DeclareUnicodeCharacter{1D55A}{\utf@column{\mathbb{i}}{\utf@ds{i}}} % "𝕚"
+\DeclareUnicodeCharacter{1D55B}{\utf@column{\mathbb{j}}{\utf@ds{j}}} % "𝕛"
+\DeclareUnicodeCharacter{1D55C}{\utf@column{\mathbb{k}}{\utf@ds{k}}} % "𝕜"
+\DeclareUnicodeCharacter{1D55D}{\utf@column{\mathbb{l}}{\utf@ds{l}}} % "𝕝"
+\DeclareUnicodeCharacter{1D55E}{\utf@column{\mathbb{m}}{\utf@ds{m}}} % "𝕞"
+\DeclareUnicodeCharacter{1D55F}{\utf@column{\mathbb{n}}{\utf@ds{n}}} % "𝕟"
+\DeclareUnicodeCharacter{1D560}{\utf@column{\mathbb{o}}{\utf@ds{o}}} % "𝕠"
+\DeclareUnicodeCharacter{1D561}{\utf@column{\mathbb{p}}{\utf@ds{p}}} % "𝕡"
+\DeclareUnicodeCharacter{1D562}{\utf@column{\mathbb{q}}{\utf@ds{q}}} % "𝕢"
+\DeclareUnicodeCharacter{1D563}{\utf@column{\mathbb{r}}{\utf@ds{r}}} % "𝕣"
+\DeclareUnicodeCharacter{1D564}{\utf@column{\mathbb{s}}{\utf@ds{s}}} % "𝕤"
+\DeclareUnicodeCharacter{1D565}{\utf@column{\mathbb{t}}{\utf@ds{t}}} % "𝕥"
+\DeclareUnicodeCharacter{1D566}{\utf@column{\mathbb{u}}{\utf@ds{u}}} % "𝕦"
+\DeclareUnicodeCharacter{1D567}{\utf@column{\mathbb{v}}{\utf@ds{v}}} % "𝕧"
+\DeclareUnicodeCharacter{1D568}{\utf@column{\mathbb{w}}{\utf@ds{w}}} % "𝕨"
+\DeclareUnicodeCharacter{1D569}{\utf@column{\mathbb{x}}{\utf@ds{x}}} % "𝕩"
+\DeclareUnicodeCharacter{1D56A}{\utf@column{\mathbb{y}}{\utf@ds{y}}} % "𝕪"
+\DeclareUnicodeCharacter{1D56B}{\utf@column{\mathbb{z}}{\utf@ds{z}}} % "𝕫"
+\DeclareUnicodeCharacter{1D7D8}{\utf@column{\mathbb{0}}{\utf@ds{0}}} % "𝟘"
+\DeclareUnicodeCharacter{1D7D9}{\utf@column{\mathbb{1}}{\utf@ds{1}}} % "𝟙"
+\DeclareUnicodeCharacter{1D7DA}{\utf@column{\mathbb{2}}{\utf@ds{2}}} % "𝟚"
+\DeclareUnicodeCharacter{1D7DB}{\utf@column{\mathbb{3}}{\utf@ds{3}}} % "𝟛"
+\DeclareUnicodeCharacter{1D7DC}{\utf@column{\mathbb{4}}{\utf@ds{4}}} % "𝟜"
+\DeclareUnicodeCharacter{1D7DD}{\utf@column{\mathbb{5}}{\utf@ds{5}}} % "𝟝"
+\DeclareUnicodeCharacter{1D7DE}{\utf@column{\mathbb{6}}{\utf@ds{6}}} % "𝟞"
+\DeclareUnicodeCharacter{1D7DF}{\utf@column{\mathbb{7}}{\utf@ds{7}}} % "𝟟"
+\DeclareUnicodeCharacter{1D7E0}{\utf@column{\mathbb{8}}{\utf@ds{8}}} % "𝟠"
+\DeclareUnicodeCharacter{1D7E1}{\utf@column{\mathbb{9}}{\utf@ds{9}}} % "𝟡"

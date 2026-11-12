@@ -14,8 +14,19 @@ documents, in text and in maths: `$∀ x ∈ ℕ. x ≥ 0$` comes out as
   It also defines `\scaledbin{factor}{symbol}`, a binary operator made from a
   scaled glyph, and `\widerel{factor}{symbol}`, a horizontally stretched
   relation.
+
+  In typewriter text, such as code, Greek and double-struck letters and `×`
+  are each one column wide: Greek letters stand upright (`\upalpha` and so
+  on, from `newtxmath` or `upgreek`), double-struck letters are DSSerif's,
+  and `×` is the typewriter face's own. A letter wider than its column is
+  centred on it; `\usepackage[condensed]{utf8}` squeezes it to the column
+  instead. Italic double-struck letters (ⅅ ⅆ ⅇ ⅈ ⅉ) are the upright ones
+  slanted. Lowercase double-struck letters in maths need a `\mathbb` that
+  has them; `amssymb`'s does not.
 - `interrobang.sty` sets `‽` (or `\interrobang`) from the current font's `?`
-  and `!`, leaning apart by `\interrobangangle` degrees. It needs TikZ.
+  and `!` around a single dot, leaning apart by `\interrobangangle` degrees.
+  The dots of Kepler (kpfonts) are known; `\interrobangdots` gives them for
+  another font. It needs TikZ.
 
 ## With Nix
 
@@ -34,7 +45,8 @@ tex = pkgs.texlive.withPackages (ps: [
 ]);
 ```
 
-`nix flake check` typesets every character `utf8.sty` declares.
+`nix flake check` typesets every character `utf8.sty` declares, in roman and
+in typewriter text.
 
 ## Without Nix
 
