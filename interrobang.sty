@@ -1,0 +1,24 @@
+% An interrobang assembled from the current font's ? and !: the two glyphs
+% share their dot and lean away from each other, each by \interrobangangle
+% degrees; the ? leans right for a positive angle and left for a negative one.
+% Typing ‽ (U+203D) produces \interrobang.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{interrobang}[2026/09/17 interrobang from ? and !]
+\RequirePackage{tikz}
+
+\newcommand{\interrobangangle}{15}
+
+\DeclareRobustCommand{\interrobang}{%
+  \tikz[baseline=0pt]{%
+    \node[inner sep=0pt, outer sep=0pt, anchor=base, rotate=-\interrobangangle]
+      at (0,0) {?};%
+    \node[inner sep=0pt, outer sep=0pt, anchor=base, rotate=\interrobangangle]
+      at (0,0) {!};%
+  }%
+}
+
+\DeclareUnicodeCharacter{203D}{\interrobang}
+
+\AtBeginDocument{%
+  \@ifpackageloaded{hyperref}{\pdfstringdefDisableCommands{\def\interrobang{?!}}}{}%
+}
